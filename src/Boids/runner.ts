@@ -1,9 +1,27 @@
 import seedrandom from "seedrandom";
 
-const wallForce = (r: number) => Math.pow(r, -1) * 10;
-const sepForce = (r: number) => Math.pow(r, -2) * 20;
-const alignForce = (r: number) => Math.pow(r, -1) * 10;
-const cohesionForce = (r: number) => Math.pow(r, -1) * 10;
+// const wallForce = (r: number) => 0;
+const sepForce = (r: number) => 0;
+const alignForce = (r: number) => 0;
+const cohesionForce = (r: number) => 0;
+
+const wallForce = (r: number) => 1 / r;
+// const sepForce = (r: number) => Math.pow(r, -2) * 2;
+// const alignForce = (r: number) => 10 * r;
+// const cohesionForce = (r: number) => 20 * r;
+
+const defaultRunner: BoidsRunner2DProps = {
+  boidCount: 40,
+  worldSize: { x: 100, y: 100 },
+  percRadius: 20,
+  wallForce,
+  alignForce,
+  sepForce,
+  cohesionForce,
+  seed: "",
+  dt: 0.01,
+  maxVel: 30,
+};
 
 export class Vec2D {
   x: number;
@@ -24,7 +42,8 @@ export class Vec2D {
   }
 
   abs(): number {
-    return Math.sqrt(this.x * this.x + this.y + this.y);
+    if (this.x === 0 && this.y === 0) return 1;
+    return Math.sqrt(this.x * this.x + this.y * this.y);
   }
 
   clone() {
@@ -57,26 +76,13 @@ export class Vec2D {
 
   norm() {
     const abs = this.abs();
-    this.divs(abs);
-    return this;
+    return this.divs(abs);
   }
 
   dot = (o: Vec2D): number => this.x * o.x + this.y * o.y;
   cross = (o: Vec2D): number => this.x * o.y - this.y * o.x;
   perp = () => new Vec2D(this.y, -this.x).norm();
 }
-
-export const defaultRunner: BoidsRunner2D = {
-  boidCount: 40,
-  worldSize: { x: 100, y: 100 },
-  percRadius: 20,
-  wallForce,
-  alignForce,
-  sepForce,
-  cohesionForce,
-  seed: "",
-  rng: seedrandom(""),
-};
 
 export class Runner2D implements BoidsRunner2D {
   boidCount: number;
@@ -134,16 +140,16 @@ export class Runner2D implements BoidsRunner2D {
       min + (max - min) * this.rng();
 
   constructor(props?: Partial<BoidsRunner2DProps>) {
-    this.boidCount = props?.boidCount || 40;
-    this.worldSize = props?.worldSize || { x: 100, y: 100 };
-    this.percRadius = props?.percRadius || 20;
-    this.wallForce = props?.wallForce || wallForce;
-    this.alignForce = props?.alignForce || alignForce;
-    this.sepForce = props?.sepForce || sepForce;
-    this.cohesionForce = props?.cohesionForce || cohesionForce;
-    this.seed = props?.seed || "";
-    this.maxVel = props?.maxVel || 20;
-    this.dt = props?.dt || 0.05;
+    this.boidCount = props?.boidCount || defaultRunner.boidCount;
+    this.worldSize = props?.worldSize || defaultRunner.worldSize;
+    this.percRadius = props?.percRadius || defaultRunner.percRadius;
+    this.wallForce = props?.wallForce || defaultRunner.wallForce;
+    this.alignForce = props?.alignForce || defaultRunner.alignForce;
+    this.sepForce = props?.sepForce || defaultRunner.sepForce;
+    this.cohesionForce = props?.cohesionForce || defaultRunner.cohesionForce;
+    this.seed = props?.seed || defaultRunner.seed;
+    this.maxVel = props?.maxVel || defaultRunner.maxVel;
+    this.dt = props?.dt || defaultRunner.dt;
 
     this.rng = seedrandom(this.seed);
     this.pos = this.randPos();
@@ -200,6 +206,7 @@ export class Runner2D implements BoidsRunner2D {
       fx += this.wallForce(this.worldSize.x - pos_i.x);
       fy -= this.wallForce(pos_i.y);
       fy += this.wallForce(this.worldSize.y - pos_i.y);
+      console.log(fx, fy);
       const wf = new Vec2D(fx, fy);
       this.acc[i].add(wf);
     }
@@ -231,5 +238,7 @@ export class Runner2D implements BoidsRunner2D {
       this.vel[i].add(this.acc[i].muls(this.dt));
       this.pos[i].add(this.vel[i].clone().muls(this.dt));
     }
+
+    console.log(this.pos[0], this.vel[0], this.acc[0]);
   }
 }

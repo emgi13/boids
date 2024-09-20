@@ -16,7 +16,7 @@ class Boids extends React.Component<BoidsProps> {
     this.p5ref = React.createRef();
     this.runner = new Runner2D(props.runnerProps);
     this.active = true;
-    this.frameRate = props.frameRate || 15;
+    this.frameRate = props.frameRate || 1;
     this.skipFrames = props.skipFrames || 1;
 
     // binds
@@ -73,7 +73,7 @@ class Boids extends React.Component<BoidsProps> {
   }
 
   makeBoid(p: p5, pos: Vec2D, vel: Vec2D) {
-    const main = 4;
+    const main = 6;
     const side = 2;
     const dir = vel.clone().norm().muls(main);
     const perp = dir.perp().muls(side);
@@ -97,7 +97,6 @@ class Boids extends React.Component<BoidsProps> {
       const width = this.p5ref.current?.offsetWidth || 400;
       const height = width / this.runner.aspectRatio;
       p.createCanvas(width, height);
-      p.scale(width / this.runner.worldSize.x);
       p.background(0, 0, 0, 0);
       p.frameRate(this.frameRate);
       p.fill("white");
@@ -109,6 +108,7 @@ class Boids extends React.Component<BoidsProps> {
 
     p.draw = () => {
       p.clear();
+      p.scale(p.width / this.runner.worldSize.x);
       this.calcFrame();
       this.renderFrame();
     };
