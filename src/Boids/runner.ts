@@ -18,7 +18,7 @@ const defaultRunner: BoidsRunner2DProps = {
   alignForce,
   sepForce,
   cohesionForce,
-  seed: "",
+  seed: `${Math.random()}`,
   dt: 0.001,
   maxVel: 30,
 };
@@ -139,8 +139,8 @@ export class Runner2D implements BoidsRunner2D {
 
   rngWithMinMax =
     (min: number = 0, max: number = 1) =>
-      () =>
-        min + (max - min) * this.rng();
+    () =>
+      min + (max - min) * this.rng();
 
   constructor(props?: Partial<BoidsRunner2DProps>) {
     this.boidCount = props?.boidCount || defaultRunner.boidCount;

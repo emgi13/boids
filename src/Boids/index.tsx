@@ -12,6 +12,9 @@ class Boids extends React.Component<BoidsProps> {
   frameRate: number;
   skipFrames: number;
   boidSize: { w: number; h: number };
+  yData: Float32Array;
+  maxData: number;
+  frameNo: number;
   constructor(props: BoidsProps) {
     super(props);
     this.p5ref = React.createRef();
@@ -20,6 +23,9 @@ class Boids extends React.Component<BoidsProps> {
     this.frameRate = props.frameRate || 30;
     this.skipFrames = props.skipFrames || 20;
     this.boidSize = props.boidSize || { w: 2, h: 4 };
+    this.maxData = 300;
+    this.yData = new Float32Array(this.maxData);
+    this.frameNo = 0;
 
     // binds
     this.handleScroll = this.handleScroll.bind(this);
@@ -67,7 +73,8 @@ class Boids extends React.Component<BoidsProps> {
     for (let i = 0; i < this.skipFrames; i++) {
       runner.step();
     }
-    console.log(runner.alignmentFactor);
+    this.yData[this.frameNo % this.maxData] = runner.alignmentFactor;
+    this.frameNo += 1;
   }
 
   makeBoid(p: p5, pos: Vec2D, vel: Vec2D) {
@@ -83,8 +90,31 @@ class Boids extends React.Component<BoidsProps> {
   renderFrame() {
     const { runner } = this;
     const p = this.p5!;
+    p.fill("white");
+    p.stroke(0, 0, 0, 0);
     for (let i = 0; i < runner.boidCount; i++) {
       this.makeBoid(p, runner.pos[i], runner.vel[i]);
+    }
+  }
+
+  renderChart() {
+    //
+    // background rectangle
+    const { runner } = this;
+    const { x, y } = runner.worldSize;
+    const xx = (i: number) => ((2 + i / 100) * x) / 3;
+    const yy = (i: number) => (y / 5) * (1 - i / 100);
+    const p = this.p5!;
+    p.fill(0, 0, 0, 240);
+    p.rect(xx(0), yy(100), x / 3, y / 5);
+    p.stroke(50, 50, 50);
+    const max = this.frameNo;
+    let min = max - this.maxData;
+    if (min < 0) min = 0;
+    for (let i = min; i < max; i++) {
+      const nextX = ((i - min) / this.maxData) * 100;
+      const nextY = this.yData[i % this.maxData];
+      p.line(xx(nextX), yy(0), xx(nextX), yy(nextY));
     }
   }
 
@@ -95,8 +125,7 @@ class Boids extends React.Component<BoidsProps> {
       p.createCanvas(width, height);
       p.background(0, 0, 0, 0);
       p.frameRate(this.frameRate);
-      p.fill("white");
-      p.stroke(0, 0, 0, 0);
+      p.strokeWeight(0.3);
       window.addEventListener("scroll", this.handleScrollDebounced, {
         passive: true,
       });
@@ -108,6 +137,7 @@ class Boids extends React.Component<BoidsProps> {
       p.scale(sc);
       this.calcFrame();
       this.renderFrame();
+      this.renderChart();
     };
   };
 
