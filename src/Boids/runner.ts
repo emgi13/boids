@@ -11,7 +11,7 @@ const alignForce = (r: number) => -3 * r;
 const cohesionForce = (r: number) => 3 * r * r;
 
 const defaultRunner: BoidsRunner2DProps = {
-  boidCount: 40,
+  boidCount: 100,
   worldSize: { x: 100, y: 100 },
   percRadius: 10,
   wallForce,
@@ -115,7 +115,6 @@ export class Runner2D implements BoidsRunner2D {
     for (let i = 0; i < n; i++) {
       const X = rndX();
       const Y = rndY();
-      console.log(X, Y);
       pos.push(new Vec2D(X, Y));
     }
     return pos;
@@ -140,8 +139,8 @@ export class Runner2D implements BoidsRunner2D {
 
   rngWithMinMax =
     (min: number = 0, max: number = 1) =>
-    () =>
-      min + (max - min) * this.rng();
+      () =>
+        min + (max - min) * this.rng();
 
   constructor(props?: Partial<BoidsRunner2DProps>) {
     this.boidCount = props?.boidCount || defaultRunner.boidCount;
@@ -155,13 +154,10 @@ export class Runner2D implements BoidsRunner2D {
     this.maxVel = props?.maxVel || defaultRunner.maxVel;
     this.dt = props?.dt || defaultRunner.dt;
 
-    console.log(this.boidCount);
-
     this.rng = seedrandom(this.seed);
     this.pos = this.randPos(this.boidCount);
     this.vel = this.randVel(this.boidCount);
     this.acc = Runner2D.zeros(this.boidCount);
-    console.log(this.pos);
   }
 
   get aspectRatio() {
