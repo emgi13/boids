@@ -1,3 +1,18 @@
 .Boids {
   width: 100%;
+  .sliders {
+    color: white;
+    font-family: "JetBrains Mono";
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-content: stretch;
+    .slider-cont {
+      display: flex;
+      flex-direction: row;
+      justify-content: stretch;
+      align-items: center;
+      gap: 8px;
+    }
+  }
 }

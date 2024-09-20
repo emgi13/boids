@@ -1,7 +1,8 @@
 import React from "react";
 import p5 from "p5";
 import "./styles.scss";
-import { Runner2D, Vec2D } from "./runner";
+import { alignForce, cohesionForce, Runner2D, sepForce, Vec2D } from "./runner";
+import { Slider } from "@mui/material";
 
 class Boids extends React.Component<BoidsProps> {
   p5ref: React.RefObject<HTMLDivElement>;
@@ -15,21 +16,38 @@ class Boids extends React.Component<BoidsProps> {
   yData: Float32Array;
   maxData: number;
   frameNo: number;
+  a: number;
+  s: number;
+  c: number;
   constructor(props: BoidsProps) {
     super(props);
     this.p5ref = React.createRef();
     this.runner = new Runner2D(props.runnerProps);
     this.active = true;
-    this.frameRate = props.frameRate || 30;
-    this.skipFrames = props.skipFrames || 20;
+    this.frameRate = props.frameRate || 24;
+    this.skipFrames = props.skipFrames || 30;
     this.boidSize = props.boidSize || { w: 2, h: 4 };
     this.maxData = 300;
     this.yData = new Float32Array(this.maxData);
     this.frameNo = 0;
+    this.a = 1;
+    this.s = 1;
+    this.c = 1;
 
     // binds
     this.handleScroll = this.handleScroll.bind(this);
     this.handleScrollDebounced = this.handleScrollDebounced.bind(this);
+  }
+
+  handleTouch() {
+    this.runner = new Runner2D(this.props.runnerProps);
+    this.active = true;
+    this.frameRate = this.props.frameRate || 30;
+    this.skipFrames = this.props.skipFrames || 20;
+    this.boidSize = this.props.boidSize || { w: 2, h: 4 };
+    this.maxData = 300;
+    this.yData = new Float32Array(this.maxData);
+    this.frameNo = 0;
   }
 
   handleScrollDebounced() {
@@ -60,6 +78,7 @@ class Boids extends React.Component<BoidsProps> {
 
   componentDidMount(): void {
     this.p5 = new p5(this.sketch, this.p5ref.current as HTMLElement);
+    this.p5ref?.current?.addEventListener("click", () => this.handleTouch());
   }
 
   componentWillUnmount(): void {
@@ -141,10 +160,60 @@ class Boids extends React.Component<BoidsProps> {
     };
   };
 
+  changeA(v: number) {
+    this.a = v as number;
+    this.runner.alignForce = (r) => this.a * alignForce(r);
+  }
+
+  changeS(v: number) {
+    this.s = v as number;
+    this.runner.sepForce = (r) => this.s * sepForce(r);
+  }
+
+  changeC(v: number) {
+    this.c = v as number;
+    this.runner.cohesionForce = (r) => this.c * cohesionForce(r);
+  }
+
   render(): React.ReactNode {
     return (
       <div className="Boids">
         <div className="canvas-cont" ref={this.p5ref}></div>
+        <div className="sliders">
+          <div className="slider-cont">
+            <div>A</div>
+            <Slider
+              defaultValue={this.a}
+              onChange={(e, v) => this.changeA(v as number)}
+              min={0}
+              max={10}
+              step={0.1}
+              valueLabelDisplay="auto"
+            />
+          </div>
+          <div className="slider-cont">
+            <div>S</div>
+            <Slider
+              defaultValue={this.s}
+              onChange={(e, v) => this.changeS(v as number)}
+              min={0}
+              max={10}
+              step={0.1}
+              valueLabelDisplay="auto"
+            />
+          </div>
+          <div className="slider-cont">
+            <div>C</div>
+            <Slider
+              defaultValue={this.c}
+              onChange={(e, v) => this.changeC(v as number)}
+              min={0}
+              max={10}
+              step={0.1}
+              valueLabelDisplay="auto"
+            />
+          </div>
+        </div>
       </div>
     );
   }

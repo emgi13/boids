@@ -7,7 +7,7 @@ declare interface BoidsRunner2DProps {
   alignForce: (r: number) => number;
   cohesionForce: (r: number) => number;
   maxVel: number;
-  seed: string;
+  seed?: string;
   dt: number;
 }
 

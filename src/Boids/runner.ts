@@ -6,19 +6,18 @@ import seedrandom from "seedrandom";
 // const cohesionForce = (r: number) => 0;
 
 const wallForce = (r: number) => -Math.exp(-r) * 10;
-const sepForce = (r: number) => 100 / r;
-const alignForce = (r: number) => -3 * r;
-const cohesionForce = (r: number) => 3 * r * r;
+export const sepForce = (r: number) => 50 / r;
+export const alignForce = (r: number) => -3 * r;
+export const cohesionForce = (r: number) => 3 * r * r;
 
 const defaultRunner: BoidsRunner2DProps = {
-  boidCount: 100,
-  worldSize: { x: 100, y: 100 },
+  boidCount: 200,
+  worldSize: { x: 200, y: 200 },
   percRadius: 10,
   wallForce,
   alignForce,
   sepForce,
   cohesionForce,
-  seed: `${Math.random()}`,
   dt: 0.001,
   maxVel: 30,
 };
@@ -142,6 +141,10 @@ export class Runner2D implements BoidsRunner2D {
     () =>
       min + (max - min) * this.rng();
 
+  static randSeed() {
+    return `${Math.random()}`;
+  }
+
   constructor(props?: Partial<BoidsRunner2DProps>) {
     this.boidCount = props?.boidCount || defaultRunner.boidCount;
     this.worldSize = props?.worldSize || defaultRunner.worldSize;
@@ -150,7 +153,7 @@ export class Runner2D implements BoidsRunner2D {
     this.alignForce = props?.alignForce || defaultRunner.alignForce;
     this.sepForce = props?.sepForce || defaultRunner.sepForce;
     this.cohesionForce = props?.cohesionForce || defaultRunner.cohesionForce;
-    this.seed = props?.seed || defaultRunner.seed;
+    this.seed = props?.seed || Runner2D.randSeed();
     this.maxVel = props?.maxVel || defaultRunner.maxVel;
     this.dt = props?.dt || defaultRunner.dt;
 
@@ -210,7 +213,7 @@ export class Runner2D implements BoidsRunner2D {
 
         const sep = center.clone().sub(pos_i);
         const sep_dist = sep.abs();
-        this.acc[i].add(sep.norm().muls(cohesionForce(sep_dist)));
+        this.acc[i].add(sep.norm().muls(this.cohesionForce(sep_dist)));
       }
 
       // calculate wall forces
