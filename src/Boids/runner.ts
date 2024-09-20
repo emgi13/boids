@@ -66,6 +66,18 @@ export class Vec2D {
   perp = () => new Vec2D(this.y, -this.x).norm();
 }
 
+export const defaultRunner: BoidsRunner2D = {
+  boidCount: 40,
+  worldSize: { x: 100, y: 100 },
+  percRadius: 20,
+  wallForce,
+  alignForce,
+  sepForce,
+  cohesionForce,
+  seed: "",
+  rng: seedrandom(""),
+};
+
 export class Runner2D implements BoidsRunner2D {
   boidCount: number;
   worldSize: { x: number; y: number };
@@ -105,7 +117,7 @@ export class Runner2D implements BoidsRunner2D {
     const rndV = this.rngWithMinMax(0, this.maxVel);
     for (let i = 0; i < this.boidCount; i++) {
       const vec = Vec2D.fromRng(this.rng).norm().muls(rndV());
-      this.vel.push(vec);
+      vel.push(vec);
     }
     return vel;
   }
@@ -121,24 +133,28 @@ export class Runner2D implements BoidsRunner2D {
     () =>
       min + (max - min) * this.rng();
 
-  constructor(props: Partial<BoidsRunner2DProps>) {
-    this.boidCount = props.boidCount || 40;
-    this.worldSize = props.worldSize || { x: 100, y: 100 };
-    this.percRadius = props.percRadius || 20;
-    this.wallForce = props.wallForce || wallForce;
-    this.alignForce = props.alignForce || alignForce;
-    this.sepForce = props.sepForce || sepForce;
-    this.cohesionForce = props.cohesionForce || cohesionForce;
-    this.seed = props.seed || "";
-    this.rng = seedrandom(this.seed);
-    this.maxVel = props.maxVel || 20;
-    this.dt = props.dt || 0.05;
+  constructor(props?: Partial<BoidsRunner2DProps>) {
+    this.boidCount = props?.boidCount || 40;
+    this.worldSize = props?.worldSize || { x: 100, y: 100 };
+    this.percRadius = props?.percRadius || 20;
+    this.wallForce = props?.wallForce || wallForce;
+    this.alignForce = props?.alignForce || alignForce;
+    this.sepForce = props?.sepForce || sepForce;
+    this.cohesionForce = props?.cohesionForce || cohesionForce;
+    this.seed = props?.seed || "";
+    this.maxVel = props?.maxVel || 20;
+    this.dt = props?.dt || 0.05;
 
+    this.rng = seedrandom(this.seed);
     this.pos = this.randPos();
     this.vel = this.randVel();
     this.acc = Runner2D.zeros(this.boidCount);
   }
 
+  get aspectRatio() {
+    const { x, y } = this.worldSize;
+    return y / x;
+  }
   step() {
     const ind = (i: number, j: number) => i + (j * (j - 1)) / 2;
 

@@ -17,3 +17,11 @@ declare interface BoidsRunner2D extends BoidsRunner2DProps {
   vel: Vec2D[];
   acc: Vec2D[];
 }
+
+declare type BoidsProps = {
+  runnerProps?: Partial<BoidsRunner2DProps>;
+  frameRate?: number;
+  skipFrames?: number;
+};
+
+declare type BoidsState = object;
