@@ -11,13 +11,15 @@ class Boids extends React.Component<BoidsProps> {
   runner: Runner2D;
   frameRate: number;
   skipFrames: number;
+  boidSize: { w: number; h: number };
   constructor(props: BoidsProps) {
     super(props);
     this.p5ref = React.createRef();
     this.runner = new Runner2D(props.runnerProps);
     this.active = true;
-    this.frameRate = props.frameRate || 1;
-    this.skipFrames = props.skipFrames || 1;
+    this.frameRate = props.frameRate || 30;
+    this.skipFrames = props.skipFrames || 20;
+    this.boidSize = props.boidSize || { w: 2, h: 4 };
 
     // binds
     this.handleScroll = this.handleScroll.bind(this);
@@ -34,11 +36,9 @@ class Boids extends React.Component<BoidsProps> {
     if (this.active && !inView) {
       this.p5!.frameRate(0);
       this.active = false;
-      console.log("Render paused");
     } else if (!this.active && inView) {
       this.p5!.frameRate(this.frameRate);
       this.active = true;
-      console.log("Render resumed");
     }
   }
 
@@ -54,7 +54,6 @@ class Boids extends React.Component<BoidsProps> {
 
   componentDidMount(): void {
     this.p5 = new p5(this.sketch, this.p5ref.current as HTMLElement);
-    // console.log(this.p5)
   }
 
   componentWillUnmount(): void {
@@ -64,19 +63,16 @@ class Boids extends React.Component<BoidsProps> {
   }
 
   calcFrame() {
-    console.time("calcFrame");
     const { runner } = this;
     for (let i = 0; i < this.skipFrames; i++) {
       runner.step();
     }
-    console.timeEnd("calcFrame");
   }
 
   makeBoid(p: p5, pos: Vec2D, vel: Vec2D) {
-    const main = 6;
-    const side = 2;
-    const dir = vel.clone().norm().muls(main);
-    const perp = dir.perp().muls(side);
+    const { w, h } = this.boidSize;
+    const dir = vel.clone().norm().muls(h);
+    const perp = dir.perp().muls(w / 2);
     const p1 = pos.clone().add(dir);
     const p2 = pos.clone().add(perp);
     const p3 = pos.clone().sub(perp);
@@ -84,7 +80,6 @@ class Boids extends React.Component<BoidsProps> {
   }
 
   renderFrame() {
-    // console.log("render");
     const { runner } = this;
     const p = this.p5!;
     for (let i = 0; i < runner.boidCount; i++) {
@@ -108,7 +103,8 @@ class Boids extends React.Component<BoidsProps> {
 
     p.draw = () => {
       p.clear();
-      p.scale(p.width / this.runner.worldSize.x);
+      const sc = p.width / this.runner.worldSize.x;
+      p.scale(sc);
       this.calcFrame();
       this.renderFrame();
     };

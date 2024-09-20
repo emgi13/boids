@@ -22,6 +22,7 @@ declare type BoidsProps = {
   runnerProps?: Partial<BoidsRunner2DProps>;
   frameRate?: number;
   skipFrames?: number;
+  boidSize?: { w: number; h: number };
 };
 
 declare type BoidsState = object;
