@@ -11,7 +11,7 @@ export const alignForce = (r: number) => -3 * r;
 export const cohesionForce = (r: number) => 3 * r * r;
 
 const defaultRunner: BoidsRunner2DProps = {
-  boidCount: 200,
+  boidCount: 40,
   worldSize: { x: 200, y: 200 },
   percRadius: 10,
   wallForce,

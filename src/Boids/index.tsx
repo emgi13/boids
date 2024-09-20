@@ -40,7 +40,7 @@ class Boids extends React.Component<BoidsProps> {
   }
 
   handleTouch() {
-    this.runner = new Runner2D(this.props.runnerProps);
+    this.runner.initVecs();
     this.active = true;
     this.frameRate = this.props.frameRate || 30;
     this.skipFrames = this.props.skipFrames || 20;
@@ -175,6 +175,11 @@ class Boids extends React.Component<BoidsProps> {
     this.runner.cohesionForce = (r) => this.c * cohesionForce(r);
   }
 
+  changeN(v: number) {
+    this.runner.boidCount = v;
+    this.handleTouch();
+  }
+
   render(): React.ReactNode {
     return (
       <div className="Boids">
@@ -210,6 +215,17 @@ class Boids extends React.Component<BoidsProps> {
               min={0}
               max={10}
               step={0.1}
+              valueLabelDisplay="auto"
+            />
+          </div>
+          <div className="slider-cont">
+            <div>N</div>
+            <Slider
+              defaultValue={40}
+              onChange={(e, v) => this.changeN(v as number)}
+              min={10}
+              max={200}
+              step={10}
               valueLabelDisplay="auto"
             />
           </div>
