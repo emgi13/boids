@@ -67,6 +67,7 @@ class Boids extends React.Component<BoidsProps> {
     for (let i = 0; i < this.skipFrames; i++) {
       runner.step();
     }
+    console.log(runner.alignmentFactor);
   }
 
   makeBoid(p: p5, pos: Vec2D, vel: Vec2D) {

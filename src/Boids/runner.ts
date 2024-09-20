@@ -164,6 +164,15 @@ export class Runner2D implements BoidsRunner2D {
     const { x, y } = this.worldSize;
     return y / x;
   }
+
+  get alignmentFactor() {
+    const zero = Vec2D.zero();
+    this.vel.forEach((v) => zero.add(v));
+    zero.divs(this.boidCount);
+    zero.divs(this.maxVel);
+    return 100 * zero.abs();
+  }
+
   step() {
     // calculate distances
     const dist = new Float32Array(this.boidCount * (this.boidCount - 1));
